@@ -463,6 +463,8 @@ func (o *openAIToAWSBedrockTranslatorV1ChatCompletion) bedrockToolUseToOpenAICal
 func (o *openAIToAWSBedrockTranslatorV1ChatCompletion) ResponseError(respHeaders map[string]string, body io.Reader) (
 	headerMutation *extprocv3.HeaderMutation, bodyMutation *extprocv3.BodyMutation, err error,
 ) {
+	fmt.Println("RESPONSE ERROR")
+
 	statusCode := respHeaders[statusHeaderName]
 	var openaiError openai.Error
 	if v, ok := respHeaders[contentTypeHeaderName]; ok && v == jsonContentType {
@@ -470,6 +472,7 @@ func (o *openAIToAWSBedrockTranslatorV1ChatCompletion) ResponseError(respHeaders
 		if err = json.NewDecoder(body).Decode(&bedrockError); err != nil {
 			return nil, nil, fmt.Errorf("failed to unmarshal error body: %w", err)
 		}
+		fmt.Printf("AAAAAAA AWS Bedrock error: bedrockError %+v\n", bedrockError)
 		openaiError = openai.Error{
 			Type: "error",
 			Error: openai.ErrorType{
@@ -484,6 +487,7 @@ func (o *openAIToAWSBedrockTranslatorV1ChatCompletion) ResponseError(respHeaders
 		if err != nil {
 			return nil, nil, fmt.Errorf("failed to read error body: %w", err)
 		}
+		fmt.Printf("BBBBBBBBB AWS Bedrock error: string(buf) %s\n", string(buf))
 		openaiError = openai.Error{
 			Type: "error",
 			Error: openai.ErrorType{
@@ -495,6 +499,7 @@ func (o *openAIToAWSBedrockTranslatorV1ChatCompletion) ResponseError(respHeaders
 	}
 	mut := &extprocv3.BodyMutation_Body{}
 	mut.Body, err = json.Marshal(openaiError)
+	fmt.Printf("mut.Body: %s\n", mut.Body)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to marshal error body: %w", err)
 	}
@@ -507,11 +512,13 @@ func (o *openAIToAWSBedrockTranslatorV1ChatCompletion) ResponseError(respHeaders
 func (o *openAIToAWSBedrockTranslatorV1ChatCompletion) ResponseBody(respHeaders map[string]string, body io.Reader, endOfStream bool) (
 	headerMutation *extprocv3.HeaderMutation, bodyMutation *extprocv3.BodyMutation, tokenUsage LLMTokenUsage, err error,
 ) {
+	fmt.Println("RESPONSE BODY")
 	if statusStr, ok := respHeaders[statusHeaderName]; ok {
 		var status int
 		if status, err = strconv.Atoi(statusStr); err == nil {
 			if !isGoodStatusCode(status) {
 				headerMutation, bodyMutation, err = o.ResponseError(respHeaders, body)
+				fmt.Printf("bodyMutation IS %+v\n", bodyMutation)
 				return headerMutation, bodyMutation, LLMTokenUsage{}, err
 			}
 		}

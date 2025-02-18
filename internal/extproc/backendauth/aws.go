@@ -58,6 +58,8 @@ func newAWSHandler(ctx context.Context, awsAuth *filterapi.AWSAuth) (Handler, er
 
 	signer := v4.NewSigner()
 
+	fmt.Println("newAWSHandler 0000000000000")
+	fmt.Printf("AWS Handler initialized: credentials %+v, signer %+v, region %s\n", credentials, signer, region)
 	return &awsHandler{credentials: credentials, signer: signer, region: region}, nil
 }
 
@@ -66,16 +68,21 @@ func newAWSHandler(ctx context.Context, awsAuth *filterapi.AWSAuth) (Handler, er
 // This assumes that during the transformation, the path is set in the header mutation as well as
 // the body in the body mutation.
 func (a *awsHandler) Do(ctx context.Context, requestHeaders map[string]string, headerMut *extprocv3.HeaderMutation, bodyMut *extprocv3.BodyMutation) error {
+	fmt.Println("AWSHANDLER DOOOOOOOOOOOOOOOOOOOOING")
+
 	method := requestHeaders[":method"]
 	path := ""
 	if headerMut.SetHeaders != nil {
 		for _, h := range headerMut.SetHeaders {
+			fmt.Printf("HEADER: key %s, value %s, raw %s\n", h.Header.Key, h.Header.Value, string(h.Header.RawValue))
 			if h.Header.Key == ":path" {
 				if len(h.Header.Value) > 0 {
 					path = h.Header.Value
+					fmt.Printf("SETTING HEADER.VALUE: path %s\n", path)
 				} else {
 					rv := h.Header.RawValue
 					path = unsafe.String(&rv[0], len(rv))
+					fmt.Printf("SETTING HEADER.RAWVALUE: path %s\n", path)
 				}
 				break
 			}
@@ -95,14 +102,20 @@ func (a *awsHandler) Do(ctx context.Context, requestHeaders map[string]string, h
 		return fmt.Errorf("cannot create request: %w", err)
 	}
 
+	fmt.Printf("REQUEST: req %+v\n", req)
+
 	err = a.signer.SignHTTP(ctx, a.credentials, req,
 		hex.EncodeToString(payloadHash[:]), "bedrock", a.region, time.Now())
 	if err != nil {
 		return fmt.Errorf("cannot sign request: %w", err)
 	}
 
+	fmt.Printf("SIGNED REQUEST: req %+v\n", req)
+
 	for key, hdr := range req.Header {
+		fmt.Printf("LOOPING THRU req.Header: key %s, value %v\n", key, hdr)
 		if key == "Authorization" || strings.HasPrefix(key, "X-Amz-") {
+			fmt.Printf("ADDING HEADER: key %s, value %v\n", key, hdr)
 			headerMut.SetHeaders = append(headerMut.SetHeaders, &corev3.HeaderValueOption{
 				Header: &corev3.HeaderValue{Key: key, RawValue: []byte(hdr[0])}, // Assume aws-go-sdk always returns a single value.
 			})

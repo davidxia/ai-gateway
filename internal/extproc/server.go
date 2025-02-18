@@ -34,7 +34,7 @@ const (
 	redactedKey = "[REDACTED]"
 )
 
-var sensitiveHeaderKeys = []string{"authorization"}
+var sensitiveHeaderKeys = []string{""}
 
 // Server implements the external processor server.
 type Server struct {
@@ -168,10 +168,12 @@ func (s *Server) Process(stream extprocv3.ExternalProcessor_ProcessServer) error
 		}
 
 		resp, err := s.processMsg(ctx, p, req)
+		fmt.Printf("44444444 RESP %+v, ERR %s\n", resp, err)
 		if err != nil {
 			s.logger.Error("error processing request message", slog.String("error", err.Error()))
 			return status.Errorf(codes.Unknown, "error processing request message: %v", err)
 		}
+		fmt.Printf("SENDING RESPONSE: %+v\n", resp)
 		if err := stream.Send(resp); err != nil {
 			s.logger.Error("cannot send response", slog.String("error", err.Error()))
 			return status.Errorf(codes.Unknown, "cannot send response: %v", err)
@@ -197,6 +199,13 @@ func (s *Server) processMsg(ctx context.Context, p Processor, req *extprocv3.Pro
 	case *extprocv3.ProcessingRequest_RequestBody:
 		s.logger.Debug("request body processing", slog.Any("request", req))
 		resp, err := p.ProcessRequestBody(ctx, value.RequestBody)
+
+		var status extprocv3.CommonResponse_ResponseStatus
+		if resp.GetRequestBody() != nil && resp.GetRequestBody().Response != nil {
+			status = resp.GetRequestBody().Response.Status
+		}
+
+		s.logger.Info("request body processed", "response", resp, "status", status)
 		// If DEBUG log level is enabled, filter sensitive body before logging.
 		if s.logger.Enabled(ctx, slog.LevelDebug) {
 			filteredBody := filterSensitiveBody(resp, s.logger, sensitiveHeaderKeys)

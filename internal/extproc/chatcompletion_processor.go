@@ -107,12 +107,19 @@ func (c *chatCompletionProcessor) ProcessRequestBody(ctx context.Context, rawBod
 		Header: &corev3.HeaderValue{Key: c.config.selectedBackendHeaderKey, RawValue: []byte(b.Name)},
 	})
 
+	c.logger.Info("GOT TO HERE", "backend", b.Name, "requestHeaders", c.requestHeaders, "path", c.requestHeaders[":path"], "model", model, "selectedBackend", b.Name, "headerMutation", headerMutation, "bodyMutation", bodyMutation)
+
 	if authHandler, ok := c.config.backendAuthHandlers[b.Name]; ok {
-		if err := authHandler.Do(ctx, c.requestHeaders, headerMutation, bodyMutation); err != nil {
+		c.logger.Info("Performing auth request", "backend", b.Name, "requestHeaders", c.requestHeaders, "path", c.requestHeaders[":path"], "model", model, "selectedBackend", b.Name, "headerMutation", headerMutation, "bodyMutation", bodyMutation)
+		c.logger.Info("AUTH_HANDLER", "authHandler", authHandler)
+		err := authHandler.Do(ctx, c.requestHeaders, headerMutation, bodyMutation)
+		c.logger.Info("NOW I AM HERE HAHAHA")
+		if err != nil {
 			return nil, fmt.Errorf("failed to do auth request: %w", err)
 		}
 	}
 
+	c.logger.Info("EEEEEEE")
 	resp := &extprocv3.ProcessingResponse{
 		Response: &extprocv3.ProcessingResponse_RequestBody{
 			RequestBody: &extprocv3.BodyResponse{
@@ -125,6 +132,7 @@ func (c *chatCompletionProcessor) ProcessRequestBody(ctx context.Context, rawBod
 		},
 		ModeOverride: override,
 	}
+	c.logger.Info("FFFFF", "resp", resp)
 	return resp, nil
 }
 
@@ -196,6 +204,7 @@ func (c *chatCompletionProcessor) ProcessResponseBody(_ context.Context, body *e
 			return nil, fmt.Errorf("failed to build dynamic metadata: %w", err)
 		}
 	}
+	fmt.Printf("RESP HERE IS %+v\n", resp)
 	return resp, nil
 }
 

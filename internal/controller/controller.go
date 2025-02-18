@@ -180,6 +180,8 @@ func aiServiceBackendIndexFunc(o client.Object) []string {
 }
 
 func backendSecurityPolicyIndexFunc(o client.Object) []string {
+	fmt.Println("BACKEND SECURITY POLICY INDEX FUNC")
+
 	backendSecurityPolicy := o.(*aigv1a1.BackendSecurityPolicy)
 	var key string
 	switch backendSecurityPolicy.Spec.Type {
@@ -187,9 +189,14 @@ func backendSecurityPolicyIndexFunc(o client.Object) []string {
 		apiKey := backendSecurityPolicy.Spec.APIKey
 		key = getSecretNameAndNamespace(apiKey.SecretRef, backendSecurityPolicy.Namespace)
 	case aigv1a1.BackendSecurityPolicyTypeAWSCredentials:
+		fmt.Println("loading AWS credentials")
 		awsCreds := backendSecurityPolicy.Spec.AWSCredentials
 		if awsCreds.CredentialsFile != nil {
+			fmt.Println("FROM FILE")
+			fmt.Printf("SecretRef: %v", awsCreds.CredentialsFile.SecretRef)
+			fmt.Printf("namespace: %v", backendSecurityPolicy.Namespace)
 			key = getSecretNameAndNamespace(awsCreds.CredentialsFile.SecretRef, backendSecurityPolicy.Namespace)
+			fmt.Printf("KEY: %v", key)
 		} else if awsCreds.OIDCExchangeToken != nil {
 			key = backendSecurityPolicyKey(backendSecurityPolicy.Namespace, backendSecurityPolicy.Name)
 		}
