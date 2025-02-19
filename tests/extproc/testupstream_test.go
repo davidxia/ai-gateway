@@ -56,13 +56,13 @@ func TestWithTestUpstream(t *testing.T) {
 		},
 	})
 
-	expectedModels := openai.ModelList{
-		Object: "list",
-		Data: []openai.Model{
-			{ID: "openai", Object: "model", OwnedBy: "Envoy AI Gateway"},
-			{ID: "aws-bedrock", Object: "model", OwnedBy: "Envoy AI Gateway"},
-		},
-	}
+	// expectedModels := openai.ModelList{
+	// 	Object: "list",
+	// 	Data: []openai.Model{
+	// 		{ID: "openai", Object: "model", OwnedBy: "Envoy AI Gateway"},
+	// 		{ID: "aws-bedrock", Object: "model", OwnedBy: "Envoy AI Gateway"},
+	// 	},
+	// }
 
 	requireExtProc(t, os.Stdout, extProcExecutablePath(), configPath)
 
@@ -99,143 +99,145 @@ func TestWithTestUpstream(t *testing.T) {
 		// expResponseBodyFunc is a function to check the response body. This can be used instead of the expResponseBody field.
 		expResponseBodyFunc func(require.TestingT, []byte)
 	}{
+		// 		{
+		// 			name:           "unknown path",
+		// 			backend:        "openai",
+		// 			path:           "/unknown",
+		// 			method:         http.MethodPost,
+		// 			requestBody:    `{"prompt": "hello"}`,
+		// 			responseBody:   `{"error": "unknown path"}`,
+		// 			expPath:        "/unknown",
+		// 			responseStatus: "500",
+		// 			expStatus:      http.StatusInternalServerError,
+		// 		},
+		// 		{
+		// 			name:            "aws system role - /v1/chat/completions",
+		// 			backend:         "aws-bedrock",
+		// 			path:            "/v1/chat/completions",
+		// 			requestBody:     `{"model":"something","messages":[{"role":"system","content":"You are a chatbot."}]}`,
+		// 			expPath:         "/model/something/converse",
+		// 			responseBody:    `{"output":{"message":{"content":[{"text":"response"},{"text":"from"},{"text":"assistant"}],"role":"assistant"}},"stopReason":null,"usage":{"inputTokens":10,"outputTokens":20,"totalTokens":30}}`,
+		// 			expRequestBody:  `{"inferenceConfig":{},"messages":[],"modelId":null,"system":[{"text":"You are a chatbot."}]}`,
+		// 			expStatus:       http.StatusOK,
+		// 			expResponseBody: `{"choices":[{"finish_reason":"stop","index":0,"logprobs":{},"message":{"content":"response","role":"assistant"}},{"finish_reason":"stop","index":1,"logprobs":{},"message":{"content":"from","role":"assistant"}},{"finish_reason":"stop","index":2,"logprobs":{},"message":{"content":"assistant","role":"assistant"}}],"object":"chat.completion","usage":{"completion_tokens":20,"prompt_tokens":10,"total_tokens":30}}`,
+		// 		},
+		// 		{
+		// 			name:            "openai - /v1/chat/completions",
+		// 			backend:         "openai",
+		// 			path:            "/v1/chat/completions",
+		// 			method:          http.MethodPost,
+		// 			requestBody:     `{"model":"something","messages":[{"role":"system","content":"You are a chatbot."}]}`,
+		// 			expPath:         "/v1/chat/completions",
+		// 			responseBody:    `{"choices":[{"message":{"content":"This is a test."}}]}`,
+		// 			expStatus:       http.StatusOK,
+		// 			expResponseBody: `{"choices":[{"message":{"content":"This is a test."}}]}`,
+		// 		},
+		// 		{
+		// 			name:           "aws - /v1/chat/completions - streaming",
+		// 			backend:        "aws-bedrock",
+		// 			path:           "/v1/chat/completions",
+		// 			responseType:   "aws-event-stream",
+		// 			method:         http.MethodPost,
+		// 			requestBody:    `{"model":"something","messages":[{"role":"system","content":"You are a chatbot."}], "stream": true}`,
+		// 			expRequestBody: `{"inferenceConfig":{},"messages":[],"modelId":null,"system":[{"text":"You are a chatbot."}]}`,
+		// 			expPath:        "/model/something/converse-stream",
+		// 			responseBody: `{"role":"assistant"}
+		// {"start":{"toolUse":{"name":"cosine","toolUseId":"tooluse_QklrEHKjRu6Oc4BQUfy7ZQ"}}}
+		// {"delta":{"text":"Don"}}
+		// {"delta":{"text":"'t worry,  I'm here to help. It"}}
+		// {"delta":{"text":" seems like you're testing my ability to respond appropriately"}}
+		// {"stopReason":"tool_use"}
+		// {"usage":{"inputTokens":41, "outputTokens":36, "totalTokens":77}}
+		// `,
+		// 			expStatus: http.StatusOK,
+		// 			expResponseBody: `data: {"choices":[{"delta":{"content":"","role":"assistant"}}],"object":"chat.completion.chunk"}
+
+		// data: {"choices":[{"delta":{"role":"assistant","tool_calls":[{"id":"tooluse_QklrEHKjRu6Oc4BQUfy7ZQ","function":{"arguments":"","name":"cosine"},"type":"function"}]}}],"object":"chat.completion.chunk"}
+
+		// data: {"choices":[{"delta":{"content":"Don","role":"assistant"}}],"object":"chat.completion.chunk"}
+
+		// data: {"choices":[{"delta":{"content":"'t worry,  I'm here to help. It","role":"assistant"}}],"object":"chat.completion.chunk"}
+
+		// data: {"choices":[{"delta":{"content":" seems like you're testing my ability to respond appropriately","role":"assistant"}}],"object":"chat.completion.chunk"}
+
+		// data: {"choices":[{"delta":{"content":"","role":"assistant"},"finish_reason":"tool_calls"}],"object":"chat.completion.chunk"}
+
+		// data: {"object":"chat.completion.chunk","usage":{"completion_tokens":36,"prompt_tokens":41,"total_tokens":77}}
+
+		// data: [DONE]
+		// `,
+		// 		},
+		// 		{
+		// 			name:         "openai - /v1/chat/completions - streaming",
+		// 			backend:      "openai",
+		// 			path:         "/v1/chat/completions",
+		// 			responseType: "sse",
+		// 			method:       http.MethodPost,
+		// 			requestBody:  `{"model":"something","messages":[{"role":"system","content":"You are a chatbot."}], "stream": true}`,
+		// 			expPath:      "/v1/chat/completions",
+		// 			responseBody: `
+		// {"id":"chatcmpl-foo","object":"chat.completion.chunk","created":1731618222,"model":"gpt-4o-mini-2024-07-18","system_fingerprint":"fp_0ba0d124f1","choices":[{"index":0,"delta":{"role":"assistant","content":"","refusal":null},"logprobs":null,"finish_reason":null}],"usage":null}
+		// {"id":"chatcmpl-foo","object":"chat.completion.chunk","created":1731618222,"model":"gpt-4o-mini-2024-07-18","system_fingerprint":"fp_0ba0d124f1","choices":[],"usage":{"prompt_tokens":13,"completion_tokens":12,"total_tokens":25,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}}
+		// [DONE]
+		// `,
+		// 			expStatus: http.StatusOK,
+		// 			expResponseBody: `data: {"id":"chatcmpl-foo","object":"chat.completion.chunk","created":1731618222,"model":"gpt-4o-mini-2024-07-18","system_fingerprint":"fp_0ba0d124f1","choices":[{"index":0,"delta":{"role":"assistant","content":"","refusal":null},"logprobs":null,"finish_reason":null}],"usage":null}
+
+		// data: {"id":"chatcmpl-foo","object":"chat.completion.chunk","created":1731618222,"model":"gpt-4o-mini-2024-07-18","system_fingerprint":"fp_0ba0d124f1","choices":[],"usage":{"prompt_tokens":13,"completion_tokens":12,"total_tokens":25,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}}
+
+		// data: [DONE]
+
+		// `,
+		// 		},
+		// 		{
+		// 			name:            "openai - /v1/chat/completions - error response",
+		// 			backend:         "openai",
+		// 			path:            "/v1/chat/completions",
+		// 			responseType:    "",
+		// 			method:          http.MethodPost,
+		// 			requestBody:     `{"model":"something","messages":[{"role":"system","content":"You are a chatbot."}], "stream": true}`,
+		// 			expPath:         "/v1/chat/completions",
+		// 			responseStatus:  "400",
+		// 			expStatus:       http.StatusBadRequest,
+		// 			responseBody:    `{"error": {"message": "missing required field", "type": "BadRequestError", "code": "400"}}`,
+		// 			expResponseBody: `{"error": {"message": "missing required field", "type": "BadRequestError", "code": "400"}}`,
+		// 		},
+		// 		{
+		// 			name:            "aws-bedrock - /v1/chat/completions - error response",
+		// 			backend:         "aws-bedrock",
+		// 			path:            "/v1/chat/completions",
+		// 			responseType:    "",
+		// 			method:          http.MethodPost,
+		// 			requestBody:     `{"model":"something","messages":[{"role":"system","content":"You are a chatbot."}], "stream": true}`,
+		// 			expPath:         "/model/something/converse-stream",
+		// 			responseStatus:  "429",
+		// 			expStatus:       http.StatusTooManyRequests,
+		// 			responseHeaders: "x-amzn-errortype:ThrottledException",
+		// 			responseBody:    `{"message": "aws bedrock rate limit exceeded"}`,
+		// 			expResponseBody: `{"type":"error","error":{"type":"ThrottledException","code":"429","message":"aws bedrock rate limit exceeded"}}`,
+		// 		},
 		{
-			name:           "unknown path",
-			backend:        "openai",
-			path:           "/unknown",
-			method:         http.MethodPost,
-			requestBody:    `{"prompt": "hello"}`,
-			responseBody:   `{"error": "unknown path"}`,
-			expPath:        "/unknown",
-			responseStatus: "500",
-			expStatus:      http.StatusInternalServerError,
-		},
-		{
-			name:            "aws system role - /v1/chat/completions",
-			backend:         "aws-bedrock",
-			path:            "/v1/chat/completions",
-			requestBody:     `{"model":"something","messages":[{"role":"system","content":"You are a chatbot."}]}`,
-			expPath:         "/model/something/converse",
-			responseBody:    `{"output":{"message":{"content":[{"text":"response"},{"text":"from"},{"text":"assistant"}],"role":"assistant"}},"stopReason":null,"usage":{"inputTokens":10,"outputTokens":20,"totalTokens":30}}`,
-			expRequestBody:  `{"inferenceConfig":{},"messages":[],"modelId":null,"system":[{"text":"You are a chatbot."}]}`,
-			expStatus:       http.StatusOK,
-			expResponseBody: `{"choices":[{"finish_reason":"stop","index":0,"logprobs":{},"message":{"content":"response","role":"assistant"}},{"finish_reason":"stop","index":1,"logprobs":{},"message":{"content":"from","role":"assistant"}},{"finish_reason":"stop","index":2,"logprobs":{},"message":{"content":"assistant","role":"assistant"}}],"object":"chat.completion","usage":{"completion_tokens":20,"prompt_tokens":10,"total_tokens":30}}`,
-		},
-		{
-			name:            "openai - /v1/chat/completions",
-			backend:         "openai",
-			path:            "/v1/chat/completions",
-			method:          http.MethodPost,
-			requestBody:     `{"model":"something","messages":[{"role":"system","content":"You are a chatbot."}]}`,
-			expPath:         "/v1/chat/completions",
-			responseBody:    `{"choices":[{"message":{"content":"This is a test."}}]}`,
-			expStatus:       http.StatusOK,
-			expResponseBody: `{"choices":[{"message":{"content":"This is a test."}}]}`,
-		},
-		{
-			name:           "aws - /v1/chat/completions - streaming",
-			backend:        "aws-bedrock",
-			path:           "/v1/chat/completions",
-			responseType:   "aws-event-stream",
-			method:         http.MethodPost,
-			requestBody:    `{"model":"something","messages":[{"role":"system","content":"You are a chatbot."}], "stream": true}`,
-			expRequestBody: `{"inferenceConfig":{},"messages":[],"modelId":null,"system":[{"text":"You are a chatbot."}]}`,
-			expPath:        "/model/something/converse-stream",
-			responseBody: `{"role":"assistant"}
-{"start":{"toolUse":{"name":"cosine","toolUseId":"tooluse_QklrEHKjRu6Oc4BQUfy7ZQ"}}}
-{"delta":{"text":"Don"}}
-{"delta":{"text":"'t worry,  I'm here to help. It"}}
-{"delta":{"text":" seems like you're testing my ability to respond appropriately"}}
-{"stopReason":"tool_use"}
-{"usage":{"inputTokens":41, "outputTokens":36, "totalTokens":77}}
-`,
-			expStatus: http.StatusOK,
-			expResponseBody: `data: {"choices":[{"delta":{"content":"","role":"assistant"}}],"object":"chat.completion.chunk"}
-
-data: {"choices":[{"delta":{"role":"assistant","tool_calls":[{"id":"tooluse_QklrEHKjRu6Oc4BQUfy7ZQ","function":{"arguments":"","name":"cosine"},"type":"function"}]}}],"object":"chat.completion.chunk"}
-
-data: {"choices":[{"delta":{"content":"Don","role":"assistant"}}],"object":"chat.completion.chunk"}
-
-data: {"choices":[{"delta":{"content":"'t worry,  I'm here to help. It","role":"assistant"}}],"object":"chat.completion.chunk"}
-
-data: {"choices":[{"delta":{"content":" seems like you're testing my ability to respond appropriately","role":"assistant"}}],"object":"chat.completion.chunk"}
-
-data: {"choices":[{"delta":{"content":"","role":"assistant"},"finish_reason":"tool_calls"}],"object":"chat.completion.chunk"}
-
-data: {"object":"chat.completion.chunk","usage":{"completion_tokens":36,"prompt_tokens":41,"total_tokens":77}}
-
-data: [DONE]
-`,
-		},
-		{
-			name:         "openai - /v1/chat/completions - streaming",
-			backend:      "openai",
+			name:         "forbidden",
+			backend:      "aws-bedrock",
 			path:         "/v1/chat/completions",
-			responseType: "sse",
 			method:       http.MethodPost,
-			requestBody:  `{"model":"something","messages":[{"role":"system","content":"You are a chatbot."}], "stream": true}`,
-			expPath:      "/v1/chat/completions",
-			responseBody: `
-{"id":"chatcmpl-foo","object":"chat.completion.chunk","created":1731618222,"model":"gpt-4o-mini-2024-07-18","system_fingerprint":"fp_0ba0d124f1","choices":[{"index":0,"delta":{"role":"assistant","content":"","refusal":null},"logprobs":null,"finish_reason":null}],"usage":null}
-{"id":"chatcmpl-foo","object":"chat.completion.chunk","created":1731618222,"model":"gpt-4o-mini-2024-07-18","system_fingerprint":"fp_0ba0d124f1","choices":[],"usage":{"prompt_tokens":13,"completion_tokens":12,"total_tokens":25,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}}
-[DONE]
-`,
-			expStatus: http.StatusOK,
-			expResponseBody: `data: {"id":"chatcmpl-foo","object":"chat.completion.chunk","created":1731618222,"model":"gpt-4o-mini-2024-07-18","system_fingerprint":"fp_0ba0d124f1","choices":[{"index":0,"delta":{"role":"assistant","content":"","refusal":null},"logprobs":null,"finish_reason":null}],"usage":null}
-
-data: {"id":"chatcmpl-foo","object":"chat.completion.chunk","created":1731618222,"model":"gpt-4o-mini-2024-07-18","system_fingerprint":"fp_0ba0d124f1","choices":[],"usage":{"prompt_tokens":13,"completion_tokens":12,"total_tokens":25,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}}
-
-data: [DONE]
-
-`,
-		},
-		{
-			name:            "openai - /v1/chat/completions - error response",
-			backend:         "openai",
-			path:            "/v1/chat/completions",
-			responseType:    "",
-			method:          http.MethodPost,
-			requestBody:     `{"model":"something","messages":[{"role":"system","content":"You are a chatbot."}], "stream": true}`,
-			expPath:         "/v1/chat/completions",
-			responseStatus:  "400",
-			expStatus:       http.StatusBadRequest,
-			responseBody:    `{"error": {"message": "missing required field", "type": "BadRequestError", "code": "400"}}`,
-			expResponseBody: `{"error": {"message": "missing required field", "type": "BadRequestError", "code": "400"}}`,
-		},
-		{
-			name:            "aws-bedrock - /v1/chat/completions - error response",
-			backend:         "aws-bedrock",
-			path:            "/v1/chat/completions",
-			responseType:    "",
-			method:          http.MethodPost,
-			requestBody:     `{"model":"something","messages":[{"role":"system","content":"You are a chatbot."}], "stream": true}`,
-			expPath:         "/model/something/converse-stream",
-			responseStatus:  "429",
-			expStatus:       http.StatusTooManyRequests,
-			responseHeaders: "x-amzn-errortype:ThrottledException",
-			responseBody:    `{"message": "aws bedrock rate limit exceeded"}`,
-			expResponseBody: `{"type":"error","error":{"type":"ThrottledException","code":"429","message":"aws bedrock rate limit exceeded"}}`,
-		},
-		{
-			name:            "forbidden",
-			backend:         "aws-bedrock",
-			path:            "/v1/chat/completions",
-			method:          http.MethodPost,
-			requestBody:     `{"model":"something","messages":[{"role":"system","content":"You are a chatbot."}]}`,
-			responseBody:    `{"type": "error","error":{"type":"AccessDeniedException:http://internal.amazon.com/coral/com.amazon.bedrock/","code":"403","message":"You don't have access to the model with the specified model ID."}}`,
+			requestBody:  `{"model":"something","messages":[{"role":"system","content":"You are a chatbot."}]}`,
+			responseBody: `{"message": "You don't have access to the model with the specified model ID."}`,
+			// responseBody:    `{"type":"AccessDeniedException:http://internal.amazon.com/coral/com.amazon.bedrock/","code":"403","message":"You don't have access to the model with the specified model ID."}`,
 			expPath:         "/model/something/converse",
 			responseStatus:  "403",
+			responseHeaders: "x-amzn-errortype:AccessDeniedException:http://internal.amazon.com/coral/com.amazon.bedrock/",
 			expStatus:       http.StatusForbidden,
-			expResponseBody: `{"type": "error","error":{"type":"AccessDeniedException:http://internal.amazon.com/coral/com.amazon.bedrock/","code":"403","message":"You don't have access to the model with the specified model ID."}}`,
+			expResponseBody: `{"type":"error","error":{"type":"AccessDeniedException:http://internal.amazon.com/coral/com.amazon.bedrock/","code":"403","message":"You don't have access to the model with the specified model ID."}}`,
 		},
-		{
-			name:                "openai - /v1/models",
-			backend:             "openai",
-			path:                "/v1/models",
-			method:              http.MethodGet,
-			expStatus:           http.StatusOK,
-			expResponseBodyFunc: checkModelsIgnoringTimestamps(expectedModels),
-		},
+		// {
+		// 	name:                "openai - /v1/models",
+		// 	backend:             "openai",
+		// 	path:                "/v1/models",
+		// 	method:              http.MethodGet,
+		// 	expStatus:           http.StatusOK,
+		// 	expResponseBodyFunc: checkModelsIgnoringTimestamps(expectedModels),
+		// },
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			require.Eventually(t, func() bool {

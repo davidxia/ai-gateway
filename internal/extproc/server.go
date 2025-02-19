@@ -167,6 +167,7 @@ func (s *Server) Process(stream extprocv3.ExternalProcessor_ProcessServer) error
 			}
 		}
 
+		fmt.Printf("010101010 req: %v\n", req)
 		resp, err := s.processMsg(ctx, p, req)
 		if err != nil {
 			s.logger.Error("error processing request message", slog.String("error", err.Error()))
@@ -180,6 +181,7 @@ func (s *Server) Process(stream extprocv3.ExternalProcessor_ProcessServer) error
 }
 
 func (s *Server) processMsg(ctx context.Context, p Processor, req *extprocv3.ProcessingRequest) (*extprocv3.ProcessingResponse, error) {
+	fmt.Printf("AAAAAAA processMsg req: %v\n", req)
 	switch value := req.Request.(type) {
 	case *extprocv3.ProcessingRequest_RequestHeaders:
 		requestHdrs := req.GetRequestHeaders().Headers
@@ -217,7 +219,9 @@ func (s *Server) processMsg(ctx context.Context, p Processor, req *extprocv3.Pro
 		return resp, nil
 	case *extprocv3.ProcessingRequest_ResponseBody:
 		s.logger.Debug("response body processing", slog.Any("request", req))
+		fmt.Printf("HHHHH body: %v\n", value.ResponseBody)
 		resp, err := p.ProcessResponseBody(ctx, value.ResponseBody)
+		fmt.Printf("IIIIIII resp: %v\n", resp)
 		s.logger.Debug("response body processed", slog.Any("response", resp))
 		if err != nil {
 			return nil, fmt.Errorf("cannot process response body: %w", err)

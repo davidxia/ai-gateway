@@ -154,6 +154,7 @@ func (c *chatCompletionProcessor) ProcessResponseHeaders(_ context.Context, head
 
 // ProcessResponseBody implements [Processor.ProcessResponseBody].
 func (c *chatCompletionProcessor) ProcessResponseBody(_ context.Context, body *extprocv3.HttpBody) (res *extprocv3.ProcessingResponse, err error) {
+	fmt.Printf("GGGGGG body: %v\n", body)
 	var br io.Reader
 	switch c.responseEncoding {
 	case "gzip":

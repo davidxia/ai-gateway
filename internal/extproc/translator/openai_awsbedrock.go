@@ -463,6 +463,7 @@ func (o *openAIToAWSBedrockTranslatorV1ChatCompletion) bedrockToolUseToOpenAICal
 func (o *openAIToAWSBedrockTranslatorV1ChatCompletion) ResponseError(respHeaders map[string]string, body io.Reader) (
 	headerMutation *extprocv3.HeaderMutation, bodyMutation *extprocv3.BodyMutation, err error,
 ) {
+	fmt.Printf("00000000 body %s\n", body)
 	statusCode := respHeaders[statusHeaderName]
 	var openaiError openai.Error
 	if v, ok := respHeaders[contentTypeHeaderName]; ok && v == jsonContentType {
@@ -470,6 +471,7 @@ func (o *openAIToAWSBedrockTranslatorV1ChatCompletion) ResponseError(respHeaders
 		if err = json.NewDecoder(body).Decode(&bedrockError); err != nil {
 			return nil, nil, fmt.Errorf("failed to unmarshal error body: %w", err)
 		}
+		fmt.Printf("111111111 bedrockError %+v\n", bedrockError)
 		openaiError = openai.Error{
 			Type: "error",
 			Error: openai.ErrorType{
@@ -495,6 +497,7 @@ func (o *openAIToAWSBedrockTranslatorV1ChatCompletion) ResponseError(respHeaders
 	}
 	mut := &extprocv3.BodyMutation_Body{}
 	mut.Body, err = json.Marshal(openaiError)
+	fmt.Printf("AAAAAAA mut.Body: %s\n", mut.Body)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to marshal error body: %w", err)
 	}
@@ -507,6 +510,7 @@ func (o *openAIToAWSBedrockTranslatorV1ChatCompletion) ResponseError(respHeaders
 func (o *openAIToAWSBedrockTranslatorV1ChatCompletion) ResponseBody(respHeaders map[string]string, body io.Reader, endOfStream bool) (
 	headerMutation *extprocv3.HeaderMutation, bodyMutation *extprocv3.BodyMutation, tokenUsage LLMTokenUsage, err error,
 ) {
+	fmt.Printf("FFFFFFFF body %s\n", body)
 	if statusStr, ok := respHeaders[statusHeaderName]; ok {
 		var status int
 		if status, err = strconv.Atoi(statusStr); err == nil {
